@@ -286,7 +286,7 @@ public class TelaCadastroAluno extends javax.swing.JFrame {
         // Pegamos a lista de alunos do Controller
         List<Aluno> lista = AlunoController.getListaAlunos();
 
-        // Agora percorremos a lista usando for tradicional, como você gosta :)
+        
         for (int i = 0; i < lista.size(); i++) {
             Aluno a = lista.get(i);
 
@@ -304,10 +304,10 @@ public class TelaCadastroAluno extends javax.swing.JFrame {
             writer.newLine(); // pula para a próxima linha
         }
 
-        // Sempre devemos fechar o arquivo no final (muito importante)
+        
         writer.close();
 
-        // Mensagem de sucesso na tela
+        
         JOptionPane.showMessageDialog(this, "Arquivo CSV gerado com sucesso!");
 
     } catch (IOException e) {

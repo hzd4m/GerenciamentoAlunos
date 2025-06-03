@@ -10,4 +10,38 @@
         <maven.compiler.release>24</maven.compiler.release>
         <exec.mainClass>com.mycompany.sistemacadastroaluno.SistemaCadastroAluno</exec.mainClass>
     </properties>
+    
+    <dependencies>
+
+    <!-- Hibernate 6 (mais seguro para Maven Central) -->
+    <dependency>
+        <groupId>org.hibernate.orm</groupId>
+        <artifactId>hibernate-core</artifactId>
+        <version>6.4.4.Final</version>
+    </dependency>
+
+    <!-- MySQL Connector -->
+    <dependency>
+        <groupId>mysql</groupId>
+        <artifactId>mysql-connector-java</artifactId>
+        <version>8.0.33</version>
+    </dependency>
+
+    <!-- Jakarta Persistence -->
+    <dependency>
+        <groupId>jakarta.persistence</groupId>
+        <artifactId>jakarta.persistence-api</artifactId>
+        <version>3.1.0</version>
+    </dependency>
+
+    <!-- SLF4J Logger -->
+    <dependency>
+        <groupId>org.slf4j</groupId>
+        <artifactId>slf4j-simple</artifactId>
+        <version>2.0.7</version>
+    </dependency>
+
+</dependencies>
+
+
 </project>
