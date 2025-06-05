@@ -8,7 +8,8 @@
 
     <!-- Configuração de conexão -->
     <property name="hibernate.connection.driver_class">com.mysql.cj.jdbc.Driver</property>
-    <property name="hibernate.connection.url">jdbc:mysql://127.0.0.1:3306/sistemacadastros?useSSL=false&amp;serverTimezone=UTC</property>
+    <property name="hibernate.connection.url">jdbc:mysql://127.0.0.1:3306/sistemacadastros?useSSL=false&amp;serverTimezone=UTC&amp;allowPublicKeyRetrieval=true </property>
+
     <property name="hibernate.connection.username">root</property>
     <property name="hibernate.connection.password">!1www91B1TC01N!</property>
 

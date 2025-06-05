@@ -14,6 +14,13 @@ import java.time.format.DateTimeFormatter;
 import br.uespi.model.Aluno;
 import br.uespi.controller.AlunoController;
 import javax.swing.JOptionPane;
+import javax.swing.JFileChooser;
+import javax.swing.filechooser.FileNameExtensionFilter;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.OutputStreamWriter;
+
+
 
 
 
@@ -58,6 +65,7 @@ public class TelaCadastroAluno extends javax.swing.JFrame {
         Remover = new javax.swing.JButton();
         btnSalvarCsv = new javax.swing.JButton();
         Sair = new javax.swing.JButton();
+        jLabel3 = new javax.swing.JLabel();
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -148,6 +156,9 @@ public class TelaCadastroAluno extends javax.swing.JFrame {
             }
         });
 
+        jLabel3.setFont(new java.awt.Font("SansSerif", 1, 18)); // NOI18N
+        jLabel3.setText("Tela de Cadastro");
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -184,11 +195,17 @@ public class TelaCadastroAluno extends javax.swing.JFrame {
                                     .addComponent(Remover, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                                     .addComponent(Sair, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))))
                 .addGap(16, 16, 16))
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                .addGap(0, 0, Short.MAX_VALUE)
+                .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 196, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(30, 30, 30))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addGap(44, 44, 44)
+                .addGap(16, 16, 16)
+                .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 16, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(txtNome, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE))
@@ -245,25 +262,56 @@ public class TelaCadastroAluno extends javax.swing.JFrame {
 
     private void CadastrarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_CadastrarActionPerformed
         // TODO add your handling code here:
-        try{ 
+        try {
             String matricula = txtMatricula.getText().trim();
             String nome = txtNome.getText().trim();
             String telefone = txtTelefone.getText().trim();
             String cpf = txtCpf.getText().trim();
-            
+            String dataNascimentoStr = txtDataNascimento.getText().trim();
+
+            if (matricula.isEmpty() || nome.isEmpty() || dataNascimentoStr.isEmpty()) {
+                JOptionPane.showMessageDialog(this, "Preencha todos os campos obrigatórios.");
+                return;
+            }
+
+            if (!cpf.matches("\\d{11}")) {
+                JOptionPane.showMessageDialog(this, "CPF inválido (11 dígitos).");
+                return;
+            }
+
+            if (!telefone.matches("\\d{11}")) {
+                JOptionPane.showMessageDialog(this, "Telefone inválido (11 dígitos com DDD). Ex: 86999040012");
+                return;
+            }
+
             DateTimeFormatter fmt = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-            LocalDate dataNasc = LocalDate.parse(txtDataNascimento.getText().trim(), fmt);
-            
-            Aluno aluno = new Aluno(matricula, nome , dataNasc , telefone , cpf);
-            
+            LocalDate dataNasc;
+            try {
+                dataNasc = LocalDate.parse(dataNascimentoStr, fmt);
+            } catch (Exception e) {
+                JOptionPane.showMessageDialog(this, "Data inválida (dd/MM/yyyy).");
+                return;
+            }
+
+            if (dataNasc.isAfter(LocalDate.now())) {
+                JOptionPane.showMessageDialog(this, "Data de nascimento não pode ser futura.");
+                return;
+            }
+
+            Aluno aluno = new Aluno(matricula, nome, dataNasc, telefone, cpf);
             AlunoController.adicionarAluno(aluno);
-            
-            
-            
             JOptionPane.showMessageDialog(this, "Aluno cadastrado com sucesso!");
-        } catch(Exception ex){
-            JOptionPane.showMessageDialog(this, "Erro: " + ex.getMessage());
+            limparCampos();
+
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(this, "Erro ao cadastrar aluno: " + ex.getMessage());
         }
+    
+
+    
+
+
+
     }//GEN-LAST:event_CadastrarActionPerformed
 
     private void ListarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ListarActionPerformed
@@ -275,44 +323,89 @@ public class TelaCadastroAluno extends javax.swing.JFrame {
 
     private void RemoverActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_RemoverActionPerformed
         // TODO add your handling code here:
+         try {
+        // Solicita ao usuário que informe a matrícula do aluno a ser removido
+        String matricula = JOptionPane.showInputDialog(this, "Informe a matrícula do aluno a ser removido:");
+
+        // Verifica se o usuário cancelou ou deixou em branco
+        if (matricula == null || matricula.trim().isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Matrícula não informada. Operação cancelada.");
+            return;
+        }
+
+        // Chama o Controller para remover o aluno
+        boolean removido = AlunoController.removerPorMatricula(matricula.trim());
+
+        if (removido) {
+            JOptionPane.showMessageDialog(this, "Aluno removido com sucesso.");
+        } else {
+            JOptionPane.showMessageDialog(this, "Aluno não encontrado.");
+        }
+    } catch (Exception ex) {
+        JOptionPane.showMessageDialog(this, "Erro ao remover: " + ex.getMessage());
+    }
     }//GEN-LAST:event_RemoverActionPerformed
+ private void limparCampos() {
+        txtMatricula.setText("");
+        txtNome.setText("");
+        txtDataNascimento.setText("dd/MM/yyyy");
+        txtTelefone.setText("");
+        txtCpf.setText("");
+    }
 
     private void btnSalvarCsvActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSalvarCsvActionPerformed
         // TODO add your handling code here:
          try {
-        // Aqui vamos abrir um escritor de arquivos (BufferedWriter)
-        BufferedWriter writer = new BufferedWriter(new FileWriter("ListagemAlunos.txt"));
+        // Abrir um seletor de arquivos
+        JFileChooser fileChooser = new JFileChooser();
+        fileChooser.setDialogTitle("Escolha o local para salvar o CSV");
 
-        // Pegamos a lista de alunos do Controller
-        List<Aluno> lista = AlunoController.getListaAlunos();
+        // Definir extensão CSV como padrão
+        fileChooser.setFileFilter(new javax.swing.filechooser.FileNameExtensionFilter("Arquivos CSV", "csv"));
 
-        
-        for (int i = 0; i < lista.size(); i++) {
-            Aluno a = lista.get(i);
+        int userSelection = fileChooser.showSaveDialog(this);
 
-            // Formatamos a data de nascimento no padrão dd/MM/yyyy
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+        if (userSelection == JFileChooser.APPROVE_OPTION) {
+            // Pega o arquivo selecionado
+            File fileToSave = fileChooser.getSelectedFile();
+            String filePath = fileToSave.getAbsolutePath();
 
-            // Montamos a linha do CSV conforme o exemplo do enunciado
-            String linha = a.getMatricula() + "," + a.getNome() + ";" + 
-                           a.getIdade() + ";" + 
-                           a.getDataNascimento().format(formatter) + ";" +
-                           a.getTelefone() + ";" + a.getCpf();
+            // Garante a extensão .csv
+            if (!filePath.toLowerCase().endsWith(".csv")) {
+                filePath += ".csv";
+            }
 
-            // Escrevemos a linha no arquivo
-            writer.write(linha);
-            writer.newLine(); // pula para a próxima linha
+            // Abre o BufferedWriter com encoding UTF-8
+            BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(filePath), "UTF-8"));
+
+            // Escreve o cabeçalho do CSV
+            writer.write("Matricula,Nome,Idade,DataNascimento,Telefone,CPF");
+            writer.newLine();
+
+            // Pegamos a lista de alunos do Controller
+            List<Aluno> lista = AlunoController.getListaAlunos();
+
+            for (int i = 0; i < lista.size(); i++) {
+                Aluno a = lista.get(i);
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+
+                String linha = a.getMatricula() + "," + a.getNome() + "," + 
+                               a.getIdade() + "," + 
+                               a.getDataNascimento().format(formatter) + "," +
+                               a.getTelefone() + "," + a.getCpf();
+
+                writer.write(linha);
+                writer.newLine();
+            }
+
+            writer.close();
+
+            JOptionPane.showMessageDialog(this, "Arquivo CSV salvo com sucesso:\n" + filePath);
         }
-
-        
-        writer.close();
-
-        
-        JOptionPane.showMessageDialog(this, "Arquivo CSV gerado com sucesso!");
-
     } catch (IOException e) {
-        // Caso ocorra algum erro na gravação
         JOptionPane.showMessageDialog(this, "Erro ao salvar arquivo: " + e.getMessage());
+    } catch (Exception e) {
+        JOptionPane.showMessageDialog(this, "Erro inesperado: " + e.getMessage());
     }
     }//GEN-LAST:event_btnSalvarCsvActionPerformed
 
@@ -354,6 +447,7 @@ public class TelaCadastroAluno extends javax.swing.JFrame {
     private javax.swing.JButton btnSalvarCsv;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
